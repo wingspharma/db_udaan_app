@@ -223,6 +223,7 @@ exports.profile = async (req, res) => {
             mobile
             distributor_data.user_profile.name
             distributor_data.user_profile.profile_image
+            distributor_data.user_profile.profile_image_url
             distributor_data.verification_details_gst
             distributor_data.user_profile.pan_no
             distributor_data.user_profile.dl_no
@@ -237,7 +238,7 @@ exports.profile = async (req, res) => {
 
     const formatted = {
         name: dp?.user_profile?.name,
-        image: dp?.user_profile?.profile_image,
+        image: dp?.user_profile?.profile_image_url,
         mobile: user?.mobile,
 
         gstnumber: dp?.verification_details_gst,
@@ -245,8 +246,8 @@ exports.profile = async (req, res) => {
         dl_21b: dp?.user_profile?.dl_no,
         dl_21c: null,
 
-        email: dp?.email,          // string, not nested
-        division: dp?.division,    // string, not object
+        email: dp?.email,
+        division: dp?.division,
 
         emp_id: dp?.user_profile?.emp_id,
         org_id: dp?.user_profile?.org_id,
