@@ -236,20 +236,8 @@ exports.verifyOtp = async (req, res) => {
 
 exports.profile = async (req, res) => {
     const user = await User.findById(req.user.user_id)
-        .select(`
-            mobile
-            distributor_data.user_profile.name
-            distributor_data.user_profile.profile_image
-            distributor_data.user_profile.profile_image_url
-            distributor_data.verification_details_gst
-            distributor_data.user_profile.pan_no
-            distributor_data.user_profile.dl_no
-            distributor_data.email
-            distributor_data.division
-            distributor_data.user_profile.emp_id
-            distributor_data.user_profile.org_id
-            distributor_data.user_profile.designation
-        `);
+        .select("mobile distributor_data")
+        .lean();
 
     const dp = user?.distributor_data;
 
@@ -258,10 +246,19 @@ exports.profile = async (req, res) => {
         image: dp?.user_profile?.profile_image_url,
         mobile: user?.mobile,
 
-        gstnumber: dp?.verification_details_gst,
-        pancard_number: dp?.user_profile?.pan_no,
-        dl_21b: dp?.user_profile?.dl_no,
-        dl_21c: null,
+        gstnumber: dp?.verification_details_gst?.gstin,
+
+        pancard_number: dp?.bank_details?.pan_number,
+
+        dl_21b: dp?.bank_details?.ab_no,   // license AB
+        dl_21c: dp?.bank_details?.bb_no,   // license BB
+
+        cc_no: dp?.bank_details?.cc_no,
+        ch_no: dp?.bank_details?.ch_no,
+        f_lic_no: dp?.bank_details?.f_lic_no,
+
+        pancard_image: dp?.prop_uploads?.[0]?.pancard,
+        license_image: dp?.prop_uploads?.[0]?.license,
 
         email: dp?.email,
         division: dp?.division,
