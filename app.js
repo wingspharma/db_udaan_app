@@ -1,5 +1,4 @@
 require("dotenv").config();
-require("./cron/syncDistributer");
 
 const express = require("express");
 const cors = require("cors");

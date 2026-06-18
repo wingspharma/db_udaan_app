@@ -117,6 +117,23 @@ exports.verifyOtp = async (req, res) => {
 
         const distributor = response?.data?.data;
 
+        
+        const existingUser = await User.findOne({
+            distributor_id: distributor.id
+        });
+
+        if (
+            existingUser &&
+            existingUser.is_updated === 1 &&
+            existingUser.distributor_data?.user_profile
+        ) {
+            distributor.user_profile.profile_image =
+                existingUser.distributor_data.user_profile.profile_image;
+
+            distributor.user_profile.profile_image_url =
+                existingUser.distributor_data.user_profile.profile_image_url;
+        }
+
         const user = await User.findOneAndUpdate(
 
             {
@@ -327,4 +344,51 @@ exports.logout = async (req, res) => {
         status: true,
         message: "Logged Out"
     });
+};
+
+
+exports.updateProfileImage = async (req, res) => {
+    try {
+
+        if (!req.file) {
+            return res.status(400).json({
+                status: false,
+                message: "Image is required"
+            });
+        }
+
+        const imagePath = `/uploads/profile/${req.file.filename}`;
+
+        const user = await User.findById(req.user.user_id);
+
+        if (!user) {
+            return res.status(404).json({
+                status: false,
+                message: "User not found"
+            });
+        }
+
+        user.distributor_data.user_profile.profile_image = req.file.filename;
+        user.distributor_data.user_profile.profile_image_url = imagePath;
+
+        user.is_updated = 1;
+
+        user.markModified("distributor_data");
+
+        await user.save();
+
+        return res.json({
+            status: true,
+            message: "Profile image updated successfully",
+            image: imagePath
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        });
+
+    }
 };

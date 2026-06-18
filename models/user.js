@@ -54,6 +54,15 @@ const userSchema = new mongoose.Schema({
 
     last_sync_at: Date,
 
+    // 0 = never updated after initial sync
+    // 1 = updated from sync API
+    is_updated: {
+        type: Number,
+        enum: [0, 1],
+        default: 0,
+        index: true
+    },
+
     is_active: {
         type: Boolean,
         default: true
