@@ -1,6 +1,6 @@
 const axios = require("axios");
 const User = require("../../models/user");
-const uploadToS3 = require("../../helpers/uploadToS3");
+// const uploadToS3 = require("../../helpers/uploadToS3");
 // const {syncDocuments} = require("../../helpers/syncDocuments");
 
 exports.syncDistributers = async (req, res) => {
