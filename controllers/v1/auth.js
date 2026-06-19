@@ -2,6 +2,9 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/user");
 const Otp = require("../../models/otp");
+const { generateOtp } = require("../../utils/utility");
+const DistTarget = require("../../models/distTarget");
+const SaleOrder = require("../../models/saleOrder");
 
 
 
@@ -32,7 +35,7 @@ exports.sendOtp = async (req, res) => {
         }
 
         const otp = "123456";
-        // const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        //const otp = generateOtp();
 
         await Otp.deleteMany({ mobile });
 
@@ -107,6 +110,9 @@ exports.verifyOtp = async (req, res) => {
         );
 
        const distributorData = response?.data?.data;
+       const distributorTarget = response?.data?.target;
+       const saleOrders = response?.data?.sale_orders;
+       
 
         if (!response?.data?.status || !distributorData) {
             return res.status(404).json({
@@ -133,6 +139,7 @@ exports.verifyOtp = async (req, res) => {
             distributor.user_profile.profile_image_url =
                 existingUser.distributor_data.user_profile.profile_image_url;
         }
+
 
         const user = await User.findOneAndUpdate(
 
@@ -191,6 +198,73 @@ exports.verifyOtp = async (req, res) => {
             }
         );
 
+        let target = null;
+        if (distributorTarget) {
+
+            target = await DistTarget.findOneAndUpdate(
+                {
+                    user_id: user._id,
+                    year: distributorTarget.year,
+                    month: distributorTarget.month
+                },
+                {
+                    $set: {
+                        user_id: user._id,
+                        hq_code: distributorTarget.hq_code,
+                        year: distributorTarget.year,
+                        month: distributorTarget.month,
+                        type: distributorTarget.db_type,
+                        db_code: distributorTarget.db_code,
+                        db_name: distributorTarget.db_name,
+                        tgt_value: distributorTarget.tgt_value
+                    }
+                },
+                {
+                    upsert: true,
+                    new: true
+                }
+            );
+        }
+
+
+        if (saleOrders?.length) {
+
+            await SaleOrder.deleteMany({
+                user_id: user._id
+            });
+
+            await SaleOrder.insertMany(
+                saleOrders.map(item => ({
+                    user_id: user._id,
+
+                    so_code: item.so_code,
+                    csa_code: item.csa_code,
+                    csa_name: item.csa_name,
+                    division: item.division,
+                    div_name: item.div_name,
+                    db_code: item.db_code,
+                    db_name: item.db_name,
+                    sold_city: item.sold_city,
+                    so_no: item.so_no,
+                    so_date: item.so_date,
+                    so_type: item.so_type,
+                    so_description: item.so_description,
+                    product_code: item.product_code,
+                    product_name: item.product_name,
+                    order_qty: item.order_qty,
+                    uom: item.uom,
+                    chq_no: item.chq_no,
+                    chq_date: item.chq_date,
+                    net_value: item.net_value,
+                    total_val: item.total_val,
+                    pay_status: item.pay_status,
+                    brand: item.brand,
+                    hie_code: item.hie_code,
+                    hie_name: item.hie_name
+                }))
+            );
+        }
+
         const token =
             jwt.sign(
                 {
@@ -212,7 +286,8 @@ exports.verifyOtp = async (req, res) => {
             status: true,
             message: "Login Successful",
             token,
-            user
+            user,
+            target
         });
 
     } catch (error) {
@@ -241,7 +316,7 @@ exports.profile = async (req, res) => {
         .lean();
 
         if(!user){
-            return res.status(400).json({
+            return res.status(404).json({
                 status:false,
                 message:"User Not Found"
             });
@@ -310,7 +385,7 @@ exports.resendOtp = async (req, res) => {
         }
 
         const otp = "123456";
-        // const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        //const otp = generateOtp();
 
         await Otp.deleteMany({ mobile });
 

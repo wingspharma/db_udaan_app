@@ -4,10 +4,10 @@ const otpSchema = new mongoose.Schema(
     {
         mobile:{
             type: String,
-            required:true
+            required: true
         },
-        type:String,
-        otp:String,
+        type: String,
+        otp: String,
         expires_at : Date
 
     },
