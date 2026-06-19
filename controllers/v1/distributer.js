@@ -80,14 +80,14 @@ exports.getTarget = async (req, res) => {
             : 0;
 
 
-        if (!target) {
-            return res.status(404).json({
-                status: false,
-                message: "Target Not Found"
-            });
-        }
+        // if (!target) {
+        //     return res.status(404).json({
+        //         status: false,
+        //         message: "Target Not Found"
+        //     });
+        // }
 
-        const currentMonthTarget = Number(target.tgt_value);
+        const currentMonthTarget = target ? Number(target.tgt_value) : 0;
         const midMonthTarget = Math.round(currentMonthTarget * 0.60);
 
         return res.status(200).json({
@@ -95,7 +95,7 @@ exports.getTarget = async (req, res) => {
             message: "Target Fetched Successfully",
             current_month_target: currentMonthTarget,
             mid_month_target: midMonthTarget,
-            achievement_target: achievementTarget,
+            achievement_target: Number((achievementTarget ?? 0).toFixed(2)),
         });
 
     } catch (error) {
