@@ -240,7 +240,7 @@ exports.profile = async (req, res) => {
         .select("mobile distributor_data")
         .lean();
 
-        if(!user){
+        if(user){
             return res.status(400).json({
                 status:false,
                 message:"User Not Found"
