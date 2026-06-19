@@ -3,7 +3,7 @@ const User = require("../../models/user");
 exports.getDocuments = async (req, res) => {
   try {
     const docs = await User.findById(req.user.user_id)
-      .select('distributor_data.prop_uploads distributor_data.part_uploads')
+      .select('distributor_data.prop_uploads')
       .lean();
 
     const d = docs?.distributor_data;
@@ -12,8 +12,7 @@ exports.getDocuments = async (req, res) => {
       status: true,
       message: "Documents fetched successfully",
       data: {
-        prop_uploads: d?.prop_uploads || [],
-        part_uploads: d?.part_uploads || []
+        prop_uploads: d?.prop_uploads || []
       }
     });
 
