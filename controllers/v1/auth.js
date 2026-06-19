@@ -235,43 +235,59 @@ exports.verifyOtp = async (req, res) => {
 };
 
 exports.profile = async (req, res) => {
-    const user = await User.findById(req.user.user_id)
+    try{
+        const user = await User.findById(req.user.user_id)
         .select("mobile distributor_data")
         .lean();
 
-    const dp = user?.distributor_data;
+        if(!user){
+            return res.status(400).json({
+                status:false,
+                message:"User Not Found"
+            });
+        }
 
-    const formatted = {
-        name: dp?.user_profile?.name,
-        image: dp?.user_profile?.profile_image_url,
-        mobile: user?.mobile,
+        const dp = user?.distributor_data;
 
-        gstnumber: dp?.verification_details_gst?.gstin,
+        const formatted = {
+            name: dp?.user_profile?.name,
+            image: dp?.user_profile?.profile_image_url,
+            mobile: user?.mobile,
 
-        pancard_number: dp?.bank_details?.pan_number,
+            gstnumber: dp?.verification_details_gst?.gstin,
 
-        dl_21b: dp?.bank_details?.ab_no,   // license AB
-        dl_21c: dp?.bank_details?.bb_no,   // license BB
+            pancard_number: dp?.bank_details?.pan_number,
 
-        cc_no: dp?.bank_details?.cc_no,
-        ch_no: dp?.bank_details?.ch_no,
-        f_lic_no: dp?.bank_details?.f_lic_no,
+            dl_21b: dp?.bank_details?.ab_no,   // license AB
+            dl_21c: dp?.bank_details?.bb_no,   // license BB
 
-        pancard_image: dp?.prop_uploads?.[0]?.pancard,
-        license_image: dp?.prop_uploads?.[0]?.license,
+            cc_no: dp?.bank_details?.cc_no,
+            ch_no: dp?.bank_details?.ch_no,
+            f_lic_no: dp?.bank_details?.f_lic_no,
 
-        email: dp?.email,
-        division: dp?.division,
+            pancard_image: dp?.prop_uploads?.[0]?.pancard,
+            license_image: dp?.prop_uploads?.[0]?.license,
 
-        emp_id: dp?.user_profile?.emp_id,
-        org_id: dp?.user_profile?.org_id,
-        designation: dp?.user_profile?.designation,
-    };
+            email: dp?.email,
+            division: dp?.division,
 
-    return res.json({
-        status: true,
-        data: formatted
-    });
+            emp_id: dp?.user_profile?.emp_id,
+            org_id: dp?.user_profile?.org_id,
+            designation: dp?.user_profile?.designation,
+        };
+
+        return res.json({
+            status: true,
+            data: formatted,
+            message: "User get Successfully",
+        });
+    }catch(error){
+        return res.status(500).json({
+            status:false,
+            message:error.message
+        })
+    }
+    
 };
 
 
