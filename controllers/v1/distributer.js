@@ -132,7 +132,7 @@ exports.uploadBanner = async (req, res) => {
 
 exports.getBanner = async (req, res) => {
     try{
-        const banner = await Banner.find();
+        const banner = await Banner.find().select('_id name file');
 
         return res.status(200).json({
             status: true,
