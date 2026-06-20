@@ -81,13 +81,17 @@ exports.getTarget = async (req, res) => {
 
         const currentMonthTarget = target ? Number(target.tgt_value) : 0;
         const midMonthTarget = Math.round(currentMonthTarget * 0.60);
+        const data = {
+            current_month_target: currentMonthTarget,
+            mid_month_target: midMonthTarget,
+            achievement_target: Number((achievementTarget ?? 0).toFixed(2)),
+        };
+
 
         return res.status(200).json({
             status: true,
             message: "Target Fetched Successfully",
-            current_month_target: currentMonthTarget,
-            mid_month_target: midMonthTarget,
-            achievement_target: Number((achievementTarget ?? 0).toFixed(2)),
+            data
         });
 
     } catch (error) {
@@ -136,7 +140,7 @@ exports.getBanner = async (req, res) => {
 
         return res.status(200).json({
             status: true,
-            message: banner
+            banner: banner
         });
 
     }catch(error){
