@@ -11,7 +11,7 @@ exports.getDocuments = async (req, res) => {
       .lean();
 
     if(!docs){
-        return res.status(400).json({
+        return res.status(404).json({
             status: false,
             message: "Documents Not Found"
         });
@@ -20,10 +20,12 @@ exports.getDocuments = async (req, res) => {
     const d = docs?.distributor_data;
 
 
-    return res.status(201).json({
-        status: true,
-        message: "Banner uploaded successfully",
-        data: banner
+    return res.status(200).json({
+      status: true,
+      message: "Documents fetched successfully",
+      data: {
+        prop_uploads: d?.prop_uploads || []
+      }
     });
 
   } catch (error) {
@@ -79,19 +81,22 @@ exports.getTarget = async (req, res) => {
             : 0;
 
 
+        // if (!target) {
+        //     return res.status(404).json({
+        //         status: false,
+        //         message: "Target Not Found"
+        //     });
+        // }
+
         const currentMonthTarget = target ? Number(target.tgt_value) : 0;
         const midMonthTarget = Math.round(currentMonthTarget * 0.60);
-        const data = {
-            current_month_target: currentMonthTarget,
-            mid_month_target: midMonthTarget,
-            achievement_target: Number((achievementTarget ?? 0).toFixed(2)),
-        };
-
 
         return res.status(200).json({
             status: true,
             message: "Target Fetched Successfully",
-            data
+            current_month_target: currentMonthTarget,
+            mid_month_target: midMonthTarget,
+            achievement_target: Number((achievementTarget ?? 0).toFixed(2)),
         });
 
     } catch (error) {
@@ -101,6 +106,8 @@ exports.getTarget = async (req, res) => {
         });
     }
 };
+
+
 
 exports.uploadBanner = async (req, res) => {
     try{
