@@ -124,8 +124,8 @@ exports.uploadBanner = async (req, res) => {
                 message: "Name and file is required"
             });
         }
-
-        const fileUrl = `${req.protocol}://${req.get("host")}/uploads/banner/${req.file.filename}`;
+        const protocol = "https";
+        const fileUrl = `${protocol}://${req.get("host")}/uploads/banner/${req.file.filename}`;
         const banner = await Banner.create({
             name,
             file: fileUrl
