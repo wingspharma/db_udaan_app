@@ -1,6 +1,7 @@
 const User = require("../../models/user");
 const DistTarget = require("../../models/distTarget");
 const SaleOrder = require("../../models/saleOrder");
+const Banner = require("../../models/banner");
 const mongoose = require("mongoose");
 
 exports.getDocuments = async (req, res) => {
@@ -10,7 +11,7 @@ exports.getDocuments = async (req, res) => {
       .lean();
 
     if(!docs){
-        return res.status(404).json({
+        return res.status(400).json({
             status: false,
             message: "Documents Not Found"
         });
@@ -19,12 +20,10 @@ exports.getDocuments = async (req, res) => {
     const d = docs?.distributor_data;
 
 
-    return res.status(200).json({
-      status: true,
-      message: "Documents fetched successfully",
-      data: {
-        prop_uploads: d?.prop_uploads || []
-      }
+    return res.status(201).json({
+        status: true,
+        message: "Banner uploaded successfully",
+        data: banner
     });
 
   } catch (error) {
@@ -80,13 +79,6 @@ exports.getTarget = async (req, res) => {
             : 0;
 
 
-        // if (!target) {
-        //     return res.status(404).json({
-        //         status: false,
-        //         message: "Target Not Found"
-        //     });
-        // }
-
         const currentMonthTarget = target ? Number(target.tgt_value) : 0;
         const midMonthTarget = Math.round(currentMonthTarget * 0.60);
 
@@ -105,3 +97,52 @@ exports.getTarget = async (req, res) => {
         });
     }
 };
+
+exports.uploadBanner = async (req, res) => {
+    try{
+        const { name } = req.body;
+       
+
+        if(!name || !req.file ){
+            return res.status(404).json({
+                status: false,
+                message: "Name and file is required"
+            });
+        }
+
+        const fileUrl = `${req.protocol}://${req.get("host")}/uploads/banner/${req.file.filename}`;
+        const banner = await Banner.create({
+            name,
+            file: fileUrl
+        });
+
+        return res.status(201).json({
+            status: true,
+            message: "Banner uploaded success fully"
+        });
+
+    }catch(error){
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        });
+    }
+}
+
+
+exports.getBanner = async (req, res) => {
+    try{
+        const banner = await Banner.find();
+
+        return res.status(200).json({
+            status: true,
+            message: banner
+        });
+
+    }catch(error){
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        });
+    }
+}

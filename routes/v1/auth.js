@@ -11,7 +11,8 @@ router.post("/verify-otp", authController.verifyOtp);
 router.get("/profile", authMiddleware, authController.profile);
 router.post("/resend-otp", authController.resendOtp);
 router.post("/logout", authMiddleware, authController.logout);
-router.post("/update-profile", authMiddleware, upload.single("image"), authController.updateProfileImage);
+router.post("/update-profile", authMiddleware,  upload("profile").single("image"), authController.updateProfileImage);
+
 
 
 module.exports = router;
