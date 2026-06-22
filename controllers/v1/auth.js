@@ -4,7 +4,7 @@ const User = require("../../models/user");
 const Otp = require("../../models/otp");
 const { generateOtp } = require("../../utils/utility");
 const DistTarget = require("../../models/distTarget");
-const SaleOrder = require("../../models/saleOrder.js");
+const SaleOrder = require("../../models/saleOrder");
 const uploadToS3 = require("../../helpers/uploadToS3");
 
 
@@ -302,7 +302,8 @@ exports.verifyOtp = async (req, res) => {
             status: true,
             message: "Login Successful",
             token,
-            user_id: user._id,
+            user,
+            target
         });
 
     } catch (error) {
