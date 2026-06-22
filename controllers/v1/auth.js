@@ -2,7 +2,7 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/user");
 const Otp = require("../../models/otp");
-const { generateOtp } = require("../../utils/utility");
+const { generateOtp, sendOtpEmail } = require("../../utils/utility");
 const DistTarget = require("../../models/distTarget");
 const SaleOrder = require("../../models/saleOrder");
 const uploadToS3 = require("../../helpers/uploadToS3");
@@ -21,10 +21,6 @@ exports.sendOtp = async (req, res) => {
             });
         }
 
-        // const response = await axios.get(
-        //     `${process.env.DISTRIBUTER_API_URL}/${mobile}`
-        // );
-
         const response = await axios.get(
             `${process.env.DISTRIBUTER_API_URL}/${mobile}`,
             {
@@ -41,7 +37,9 @@ exports.sendOtp = async (req, res) => {
 
         
 
+       
        const distributorData = response?.data?.data;
+       const email = distributorData.email;
 
         if (!response?.data?.status || !distributorData) {
             return res.status(404).json({
@@ -63,6 +61,10 @@ exports.sendOtp = async (req, res) => {
             )
         });
 
+        if (email) {
+            await sendOtpEmail(email, otp);
+        }
+
         return res.json({
             status: true,
             message: "OTP Sent",
@@ -70,20 +72,12 @@ exports.sendOtp = async (req, res) => {
         });
 
     } catch (error) {
-
-        if(process.env.ENVIRONMENT === "development"){
-             return res.status(500).json({
-                status: false,
-                message: error.message
-            });
-        }else{
-            return res.status(500).json({
-                status: false,
-                message: "Internal Server Error"
-            });
-        }
+      
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        });
        
-
     }
 };
 

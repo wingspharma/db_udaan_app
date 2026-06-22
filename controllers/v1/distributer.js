@@ -114,7 +114,6 @@ exports.getTarget = async (req, res) => {
 };
 
 
-
 exports.uploadBanner = async (req, res) => {
     try{
         const { name } = req.body;
@@ -143,7 +142,6 @@ exports.uploadBanner = async (req, res) => {
         });
     }
 }
-
 
 exports.getBanner = async (req, res) => {
     try{
