@@ -6,7 +6,7 @@ const createUpload = () => {
     return multer({
         storage,
         limits: {
-            fileSize: 10 * 1024 * 1024 // 10 MB
+            fileSize: 30 * 1024 * 1024 // 30 MB
         }
     });
 };
