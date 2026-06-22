@@ -1,8 +1,25 @@
 const nodemailer = require("nodemailer");
+const Otp = require("../models/otp");
 
 // Generate 6-digit OTP
 const generateOtp = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return "123456";
+    // return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+
+const createOtp = async (mobile) => {
+    const otp = generateOtp();
+
+    await Otp.deleteMany({ mobile });
+
+    await Otp.create({
+        mobile,
+        otp,
+        expires_at: new Date(Date.now() + 5 * 60 * 1000)
+    });
+
+    return otp;
 };
 
 // Create transporter
@@ -74,5 +91,6 @@ const sendOtpEmail = async (email, otp, name) => {
 
 module.exports = {
     generateOtp,
-    sendOtpEmail
+    sendOtpEmail,
+    createOtp
 };

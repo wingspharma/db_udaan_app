@@ -2,7 +2,7 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/user");
 const Otp = require("../../models/otp");
-const { generateOtp, sendOtpEmail } = require("../../utils/utility");
+const { generateOtp, sendOtpEmail, createOtp } = require("../../utils/utility");
 const DistTarget = require("../../models/distTarget");
 const SaleOrder = require("../../models/saleOrder");
 const uploadToS3 = require("../../helpers/uploadToS3");
@@ -50,20 +50,7 @@ exports.sendOtp = async (req, res) => {
             });
         }
 
-        const otp = "123456";
-        //const otp = generateOtp();
-
-        await Otp.deleteMany({ mobile });
-
-        await Otp.create({
-            mobile,
-            otp,
-            expires_at: new Date(
-                Date.now() + 5 * 60 * 1000
-            )
-        });
-
-       
+        const otp = await createOtp(mobile);
 
         if (email) {
             sendOtpEmail(email, otp, name);
@@ -71,8 +58,7 @@ exports.sendOtp = async (req, res) => {
 
         return res.json({
             status: true,
-            message: "OTP Sent",
-            otp
+            message: "OTP Sent"
         });
 
     } catch (error) {
@@ -384,10 +370,16 @@ exports.resendOtp = async (req, res) => {
         const { mobile } = req.body;
 
         const response = await axios.get(
-            `${process.env.DISTRIBUTER_API_URL}/${mobile}`
+            `${process.env.DISTRIBUTER_API_URL}/${mobile}`,
+            {
+                validateStatus: () => true
+            }
         );
 
         const distributorData = response?.data?.data;
+        const email = distributorData?.email ?? null;
+        
+        const name = distributorData?.user_profile?.name ?? "";
 
         if (!response?.data?.status || !distributorData) {
             return res.status(404).json({
@@ -396,23 +388,15 @@ exports.resendOtp = async (req, res) => {
             });
         }
 
-        const otp = "123456";
-        //const otp = generateOtp();
+        const otp = await createOtp(mobile);
 
-        await Otp.deleteMany({ mobile });
-
-        await Otp.create({
-            mobile,
-            otp,
-            expires_at: new Date(
-                Date.now() + 5 * 60 * 1000
-            )
-        });
+         if (email) {
+            sendOtpEmail(email, otp, name);
+        }
 
         return res.json({
             status: true,
-            message: "OTP Sent",
-            otp
+            message: "OTP Sent"
         });
 
 
