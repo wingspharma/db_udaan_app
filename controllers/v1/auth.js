@@ -5,7 +5,7 @@ const Otp = require("../../models/otp");
 const { generateOtp, sendOtpEmail, createOtp } = require("../../utils/utility");
 const DistTarget = require("../../models/distTarget");
 const SaleOrder = require("../../models/saleOrder");
-const uploadToS3 = require("../../helpers/uploadToS3");
+const {uploadToS3, deleteFromS3} = require("../../helpers/uploadToS3");
 
 
 
@@ -440,7 +440,6 @@ exports.updateProfileImage = async (req, res) => {
             });
         }
 
-        const uploadedImage = await uploadToS3(req.file,"udaan/distributer/profile");
         const user = await User.findById(req.user.user_id);
 
         if (!user) {
@@ -449,6 +448,17 @@ exports.updateProfileImage = async (req, res) => {
                 message: "User not found"
             });
         }
+
+         const oldImageUrl = user?.distributor_data?.user_profile?.profile_image_url;
+
+        //  if (oldImageUrl) {
+        //     const oldKey = oldImageUrl.split(".amazonaws.com/")[1];
+
+        //     await deleteFromS3(oldKey);
+        // }
+
+        const uploadedImage = await uploadToS3(req.file,"udaan/distributer/profile");
+        
 
         user.distributor_data.user_profile.profile_image = uploadedImage.fileName;
         user.distributor_data.user_profile.profile_image_url = uploadedImage.url;
@@ -460,6 +470,16 @@ exports.updateProfileImage = async (req, res) => {
         user.markModified("distributor_data");
 
         await user.save();
+
+        if (oldImageUrl) {
+            const oldKey = oldImageUrl.split(".amazonaws.com/")[1];
+
+            try {
+                await deleteFromS3(oldKey);
+            } catch (err) {
+                console.error("Failed to delete old image:", err.message);
+            }
+        }
 
         return res.json({
             status: true,
