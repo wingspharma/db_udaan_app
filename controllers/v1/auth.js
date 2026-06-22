@@ -5,6 +5,7 @@ const Otp = require("../../models/otp");
 const { generateOtp } = require("../../utils/utility");
 const DistTarget = require("../../models/distTarget");
 const SaleOrder = require("../../models/saleOrder");
+const uploadToS3 = require("../../helpers/uploadToS3");
 
 
 
@@ -20,9 +21,24 @@ exports.sendOtp = async (req, res) => {
             });
         }
 
+        // const response = await axios.get(
+        //     `${process.env.DISTRIBUTER_API_URL}/${mobile}`
+        // );
+
         const response = await axios.get(
-            `${process.env.DISTRIBUTER_API_URL}/${mobile}`
+            `${process.env.DISTRIBUTER_API_URL}/${mobile}`,
+            {
+                validateStatus: () => true
+            }
         );
+
+        if (response.status === 404) {
+            return res.status(404).json({
+                status: false,
+                message: "Distributor Not Found"
+            });
+        }
+
         
 
        const distributorData = response?.data?.data;
@@ -445,8 +461,7 @@ exports.updateProfileImage = async (req, res) => {
             });
         }
 
-        const imagePath = `/uploads/profile/${req.file.filename}`;
-
+        const uploadedImage = await uploadToS3(req.file,"udaan/distributer/profile");
         const user = await User.findById(req.user.user_id);
 
         if (!user) {
@@ -456,8 +471,10 @@ exports.updateProfileImage = async (req, res) => {
             });
         }
 
-        user.distributor_data.user_profile.profile_image = req.file.filename;
-        user.distributor_data.user_profile.profile_image_url = imagePath;
+        user.distributor_data.user_profile.profile_image = uploadedImage.fileName;
+        user.distributor_data.user_profile.profile_image_url = uploadedImage.url;
+
+        
 
         user.is_updated = 1;
 
@@ -468,15 +485,13 @@ exports.updateProfileImage = async (req, res) => {
         return res.json({
             status: true,
             message: "Profile image updated successfully",
-            image: imagePath
+            image: uploadedImage.url
         });
 
     } catch (error) {
-
         return res.status(500).json({
             status: false,
             message: error.message
         });
-
     }
 };

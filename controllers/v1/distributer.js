@@ -3,6 +3,8 @@ const DistTarget = require("../../models/distTarget");
 const SaleOrder = require("../../models/saleOrder");
 const Banner = require("../../models/banner");
 const mongoose = require("mongoose");
+const uploadToS3 = require("../../helpers/uploadToS3");
+const Notification = require("../../models/notification");
 
 exports.getDocuments = async (req, res) => {
   try {
@@ -124,16 +126,14 @@ exports.uploadBanner = async (req, res) => {
                 message: "Name and file is required"
             });
         }
-        const protocol = "https";
-        const fileUrl = `${protocol}://${req.get("host")}/uploads/banner/${req.file.filename}`;
-        const banner = await Banner.create({
-            name,
-            file: fileUrl
-        });
+
+        const image = await uploadToS3(req.file,"udaan/distributer/banner");
+        const banner = await Banner.create({name,file: image.url});
 
         return res.status(201).json({
             status: true,
-            message: "Banner uploaded success fully"
+            message: "Banner uploaded successfuly",
+            banner: image.url
         });
 
     }catch(error){
@@ -159,5 +159,56 @@ exports.getBanner = async (req, res) => {
             status: false,
             message: error.message
         });
+    }
+}
+
+exports.addNotification = async (req, res) =>{
+    try{
+        const { title, message } = req.body;
+
+        if (!title || !message) {
+            return res.status(400).json({
+                status: false,
+                message: "Title and message are required"
+            });
+        }
+        const notification = await Notification.create( { title, message } );
+
+        return res.status(201).json({
+            status: true,
+            message: "notification uploaded Successfully"
+        })
+
+    }catch(error){
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        })
+    }
+}
+
+
+exports.getNotifications = async (req,res) =>{
+    try{
+        const notification = await Notification.find();
+        if(!notification){
+            return res.status(404).json({
+                status: false,
+                message: "Data Not found"
+            });
+
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: "notification fetched",
+            notificaitons: notification
+        });
+
+    }catch(error){
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        })
     }
 }

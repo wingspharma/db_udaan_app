@@ -1,28 +1,25 @@
-const axios = require("axios");
-const time= require("mime-types");
-
-const { PutobjectCommand } = require("@aws-sdk/client-s3");
-
+const path = require("path");
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const s3 = require("../config/s3");
 
-module.exports = async (imageUrl, key) => {
-    const response = await axios.get(imageUrl,{
-        responseTyoe:"arraybuffer"
-    });
+module.exports = async (file, folder) => {
 
-    const command = new PutobjectCommand({
-        Bucket: process.env.AWS_BUCKET,
+   const ext = path.extname(file.originalname);
+    const fileName = `${Date.now()}${ext}`;
+    const key = `${folder}/${fileName}`;
 
-        Key:key,
+    await s3.send(
+        new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype
+        })
+    );
 
-        Body: response.data,
-
-        ContentType: mime.lookup(key) || "application/octet-stream"
-    });
-
-    await s3.send(command);
-
-    return `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazoneaws.com/${key}`;
-
-
+    return {
+        key,
+        fileName,
+        url: `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
+    };
 };
