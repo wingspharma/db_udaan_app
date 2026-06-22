@@ -4,7 +4,7 @@ const User = require("../../models/user");
 const Otp = require("../../models/otp");
 const { generateOtp } = require("../../utils/utility");
 const DistTarget = require("../../models/distTarget");
-const SaleOrder = require("../../models/saleOrder");
+const SaleOrder = require("../../models/saleOrder.js");
 const uploadToS3 = require("../../helpers/uploadToS3");
 
 

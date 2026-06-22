@@ -1,6 +1,6 @@
 const User = require("../../models/user");
 const DistTarget = require("../../models/distTarget");
-const SaleOrder = require("../../models/saleOrder");
+const SaleOrder = require("../../models/saleOrder.js");
 const Banner = require("../../models/banner");
 const mongoose = require("mongoose");
 const uploadToS3 = require("../../helpers/uploadToS3");
