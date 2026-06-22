@@ -187,28 +187,44 @@ exports.addNotification = async (req, res) =>{
     }
 }
 
+exports.getNotifications = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-exports.getNotifications = async (req,res) =>{
-    try{
-        const notification = await Notification.find();
-        if(!notification){
+        const total = await Notification.countDocuments();
+
+        const notifications = await Notification.find()
+            .sort({ createdAt: -1 }) // Latest first
+            .skip(skip)
+            .limit(limit);
+
+        if (notifications.length === 0) {
             return res.status(404).json({
                 status: false,
-                message: "Data Not found"
+                message: "No notifications found"
             });
-
         }
 
         return res.status(200).json({
             status: true,
-            message: "notification fetched",
-            notificaitons: notification
+            message: "Notifications fetched successfully",
+            pagination: {
+                totalRecords: total,
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+                limit: limit,
+                hasNextPage: page < Math.ceil(total / limit),
+                hasPrevPage: page > 1
+            },
+            notifications: notifications
         });
 
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
             status: false,
             message: error.message
-        })
+        });
     }
-}
+};
