@@ -327,7 +327,7 @@ exports.verifyOtp = async (req, res) => {
 exports.profile = async (req, res) => {
     try{
         const user = await User.findById(req.user.user_id)
-        .select("mobile distributor_data is_updated")
+        .select("mobile distributor_data is_updated firm")
         .lean();
 
         if(!user){
@@ -364,7 +364,8 @@ exports.profile = async (req, res) => {
             emp_id: dp?.user_profile?.emp_id,
             org_id: dp?.user_profile?.org_id,
             designation: dp?.user_profile?.designation,
-            is_updated: user?.is_updated
+            is_updated: user?.is_updated,
+            firm: user?.firm
             
         };
 
