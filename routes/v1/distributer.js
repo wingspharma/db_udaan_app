@@ -8,7 +8,7 @@ router.get("/get-docs",authMiddleware, distributerController.getDocuments);
 router.get("/get-target",authMiddleware, distributerController.getTarget);
 router.post("/upload-banner", upload("banner").single("image"), distributerController.uploadBanner);
 router.get("/get-banner",distributerController.getBanner);
-router.post("/add-notification",distributerController.addNotification);
-router.get("/get-notifications", distributerController.getNotifications);
+router.post("/add-notification",authMiddleware, distributerController.addNotification);
+router.get("/get-notifications",authMiddleware, distributerController.getNotifications);
 
 module.exports = router;
