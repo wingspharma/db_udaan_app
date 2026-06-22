@@ -302,8 +302,7 @@ exports.verifyOtp = async (req, res) => {
             status: true,
             message: "Login Successful",
             token,
-            user,
-            target
+            user
         });
 
     } catch (error) {
