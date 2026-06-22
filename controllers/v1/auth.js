@@ -38,8 +38,9 @@ exports.sendOtp = async (req, res) => {
         
 
        
-       const distributorData = response?.data?.data;
-       const email = distributorData.email;
+        const distributorData = response?.data?.data;
+        const email = distributorData?.email ?? null;
+        const name = distributorData?.distributor_data?.user_profile?.name ?? null;
 
         if (!response?.data?.status || !distributorData) {
             return res.status(404).json({
@@ -62,7 +63,7 @@ exports.sendOtp = async (req, res) => {
         });
 
         if (email) {
-            await sendOtpEmail(email, otp);
+            await sendOtpEmail(email, otp, name);
         }
 
         return res.json({

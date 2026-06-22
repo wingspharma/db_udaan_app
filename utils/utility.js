@@ -30,7 +30,7 @@ transporter.verify((error, success) => {
 });
 
 // Send OTP Email
-const sendOtpEmail = async (email, otp) => {
+const sendOtpEmail = async (email, otp, name) => {
     try {
         const info = await transporter.sendMail({
             from: `"Wings Pharma" <${process.env.SMTP_USER}>`,
@@ -40,7 +40,7 @@ const sendOtpEmail = async (email, otp) => {
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
                     <h2 style="color:#2c3e50;">Distributor Udaan App</h2>
 
-                    <p>Hello,</p>
+                    <p>Hello, ${name}</p>
 
                     <p>Your One-Time Password (OTP) for login is:</p>
 
