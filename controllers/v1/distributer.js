@@ -194,31 +194,27 @@ exports.getNotifications = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const total = await Notification.countDocuments();
+        const totalPages = Math.ceil(total / limit);
 
         const notifications = await Notification.find()
-            .sort({ createdAt: -1 }) // Latest first
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        if (notifications.length === 0) {
-            return res.status(404).json({
-                status: false,
-                message: "No notifications found"
-            });
-        }
-
         return res.status(200).json({
             status: true,
-            message: "Notifications fetched successfully",
+            message: notifications.length
+                ? "Notifications fetched successfully"
+                : "No more notifications",
             pagination: {
                 totalRecords: total,
                 currentPage: page,
-                totalPages: Math.ceil(total / limit),
+                totalPages: totalPages,
                 limit: limit,
-                hasNextPage: page < Math.ceil(total / limit),
+                hasNextPage: page < totalPages,
                 hasPrevPage: page > 1
             },
-            notifications: notifications
+            notifications
         });
 
     } catch (error) {

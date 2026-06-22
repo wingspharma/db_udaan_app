@@ -87,8 +87,6 @@ exports.sendOtp = async (req, res) => {
     }
 };
 
-
-
 exports.verifyOtp = async (req, res) => {
 
     try {
@@ -380,9 +378,7 @@ exports.profile = async (req, res) => {
             message:error.message
         })
     }
-    
 };
-
 
 exports.resendOtp = async (req, res) => {
     try{
@@ -451,7 +447,6 @@ exports.logout = async (req, res) => {
         message: "Logged Out"
     });
 };
-
 
 exports.updateProfileImage = async (req, res) => {
     try {
