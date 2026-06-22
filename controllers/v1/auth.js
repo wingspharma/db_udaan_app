@@ -63,10 +63,10 @@ exports.sendOtp = async (req, res) => {
             )
         });
 
-        console.log(name);
+       
 
         if (email) {
-            await sendOtpEmail(email, otp, name);
+            sendOtpEmail(email, otp, name);
         }
 
         return res.json({
